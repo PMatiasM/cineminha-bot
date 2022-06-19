@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const MovieController = require("../controllers/MovieCrontroller");
+const MovieModel = require("../models/MovieModel");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,18 +8,29 @@ module.exports = {
     .addStringOption((option) =>
       option.setName("movie").setDescription("Movie name").setRequired(true)
     )
+    .addStringOption((option) =>
+      option
+        .setName("new-name")
+        .setDescription("New movie name")
+        .setRequired(false)
+    )
     .addBooleanOption((option) =>
       option
         .setName("watched")
         .setDescription("Have you watched the movie?")
-        .setRequired(true)
+        .setRequired(false)
     ),
   async execute(interaction) {
     const movie = {
       name: interaction.options.get("movie").value,
-      watched: interaction.options.get("watched").value,
+      newName: interaction.options.get("new-name")
+        ? interaction.options.get("new-name").value
+        : null,
+      watched: interaction.options.get("watched")
+        ? interaction.options.get("watched").value
+        : null,
     };
 
-    await MovieController.updateOne(interaction, movie);
+    await MovieModel.updateOne(interaction, movie);
   },
 };

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const MovieController = require("../controllers/MovieCrontroller");
+const MovieModel = require("../models/MovieModel");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -22,7 +22,7 @@ module.exports = {
         : false,
     };
 
-    await MovieController.create(interaction, newMovie);
+    await MovieModel.create(interaction, newMovie);
 
     // https://autocode.com/tools/discord/command-builder/
     // https://developers.themoviedb.org/3/movies/get-movie-videos

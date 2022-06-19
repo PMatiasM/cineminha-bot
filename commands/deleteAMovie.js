@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const MovieController = require("../controllers/MovieCrontroller");
+const MovieModel = require("../models/MovieModel");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -13,6 +13,6 @@ module.exports = {
       name: interaction.options.get("movie").value,
     };
 
-    await MovieController.deleteOne(interaction, movie);
+    await MovieModel.deleteOne(interaction, movie);
   },
 };

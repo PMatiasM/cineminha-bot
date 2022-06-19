@@ -1,7 +1,7 @@
 const asyncMysql = require("../infrastructure/asyncConnection");
 const yt = require("youtube-search-without-api-key");
 
-class MovieController {
+class MovieModel {
   static async create(interaction, newMovie) {
     const query = "INSERT INTO movies SET ?";
     try {
@@ -108,24 +108,40 @@ class MovieController {
     }
   }
 
+  static async readOne(movie) {
+    const query = `SELECT * FROM movies WHERE name = "${movie.name}"`;
+    const db = await asyncMysql();
+    const response = await db.query(query);
+    await db.end();
+    return response[0];
+  }
+
   static async updateOne(interaction, movie) {
-    const readOneQuery = `SELECT * FROM movies WHERE name = "${movie.name}"`;
     try {
-      // readOne();
-      const readOneDb = await asyncMysql();
-      const readOneResponse = await readOneDb.query(readOneQuery);
-      await readOneDb.end();
-      const movieDB = readOneResponse[0];
-      if (!movieDB.length) {
+      const existenceCheck = await this.readOne(movie);
+      if (!existenceCheck.length) {
         interaction.reply(
-          `There is no movie named "${movie.name}" in the list!`
+          `There is no movie named "\`${movie.name}\`" in the list!`
         );
         return;
       }
 
-      const query = `UPDATE movies SET ? WHERE id = ${movieDB[0].id}`;
+      const newMovie = {};
+      if (movie.newName === null && movie.watched === null) {
+        interaction.reply(`No changes were made!`);
+        return;
+      } else {
+        if (movie.newName !== null) {
+          newMovie.name = movie.newName;
+        }
+        if (movie.watched !== null) {
+          newMovie.watched = movie.watched;
+        }
+      }
+
+      const query = `UPDATE movies SET ? WHERE id = ${existenceCheck[0].id}`;
       const db = await asyncMysql();
-      await db.query(query, movie);
+      await db.query(query, newMovie);
       await db.end();
       this.readAll(interaction, false, true, true);
     } catch (error) {
@@ -138,21 +154,16 @@ class MovieController {
   }
 
   static async deleteOne(interaction, movie) {
-    const readOneQuery = `SELECT * FROM movies WHERE name = "${movie.name}"`;
     try {
-      // readOne();
-      const readOneDb = await asyncMysql();
-      const readOneResponse = await readOneDb.query(readOneQuery);
-      await readOneDb.end();
-      const movieDB = readOneResponse[0];
-      if (!movieDB.length) {
+      const existenceCheck = await this.readOne(movie);
+      if (!existenceCheck.length) {
         interaction.reply(
-          `There is no movie named "${movie.name}" in the list!`
+          `There is no movie named "\`${movie.name}\`" in the list!`
         );
         return;
       }
 
-      const query = `DELETE FROM movies WHERE id = ${movieDB[0].id}`;
+      const query = `DELETE FROM movie WHERE id = ${existenceCheck[0].id}`;
       const db = await asyncMysql();
       await db.query(query, movie);
       await db.end();
@@ -167,11 +178,7 @@ class MovieController {
   }
 
   static async raffleOne(interaction) {
-    const unwatchedMovies = await MovieController.readAll(
-      interaction,
-      false,
-      false
-    );
+    const unwatchedMovies = await this.readAll(interaction, false, false);
 
     const movie = Math.floor(Math.random() * unwatchedMovies.length);
 
@@ -191,4 +198,4 @@ class MovieController {
   }
 }
 
-module.exports = MovieController;
+module.exports = MovieModel;

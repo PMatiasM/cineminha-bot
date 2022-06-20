@@ -163,7 +163,7 @@ class MovieModel {
         return;
       }
 
-      const query = `DELETE FROM movie WHERE id = ${existenceCheck[0].id}`;
+      const query = `DELETE FROM movies WHERE id = ${existenceCheck[0].id}`;
       const db = await asyncMysql();
       await db.query(query, movie);
       await db.end();

@@ -20,28 +20,7 @@ class MovieModel {
       const db = await asyncMysql();
       await db.query(query, newMovie);
       await db.end();
-      const movies = await this.readAll(interaction, false, false, true);
-
-      let list = "";
-
-      for (const movie of movies) {
-        list = list.concat(
-          "\n- ",
-          movie.watched ? `${movie.name} :heavy_check_mark:` : movie.name
-        );
-      }
-
-      const Embed = {
-        color: "#6DE0FF",
-        title: ":sparkles:Listinha de filmes:sparkles:",
-        thumbnail: {
-          url: "https://cdn.discordapp.com/attachments/987236444466729020/987576526205767690/unknown.png",
-        },
-        description: list,
-        timestamp: new Date(),
-      };
-
-      await interaction.reply({ embeds: [Embed] });
+      await this.readAll(interaction, false, true, true);
     } catch (error) {
       console.log(error);
       await interaction.reply({
@@ -74,7 +53,7 @@ class MovieModel {
         for (const movie of movies) {
           list = list.concat(
             "\n- ",
-            movie.watched ? `${movie.name} :heavy_check_mark:` : movie.name
+            movie.watched ? `${movie.name} :ballot_box_with_check:` : movie.name
           );
         }
 
